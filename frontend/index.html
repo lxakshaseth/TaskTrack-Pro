@@ -1,0 +1,117 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Smart Inventory & Sales</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;700;800&family=Space+Grotesk:wght@500;700&display=swap"
+      rel="stylesheet"
+    />
+    <link rel="stylesheet" href="./css/styles.css" />
+  </head>
+  <body class="auth-page">
+    <div class="background-orb background-orb-one"></div>
+    <div class="background-orb background-orb-two"></div>
+
+    <main class="auth-layout">
+      <section class="panel auth-hero">
+        <p class="eyebrow">Retail Command Center</p>
+        <h1>Move stock faster. See sales clearer.</h1>
+        <p class="hero-copy">
+          A compact operations hub for small businesses to manage products, monitor stock, and
+          record every sale with confidence.
+        </p>
+
+        <div class="hero-grid">
+          <article class="hero-card">
+            <span class="hero-card-label">Inventory</span>
+            <strong>Track stock in real time</strong>
+            <p>Keep quantities accurate and flag low stock before it turns into a missed sale.</p>
+          </article>
+          <article class="hero-card">
+            <span class="hero-card-label">Sales</span>
+            <strong>Record transactions instantly</strong>
+            <p>Each sale updates inventory automatically and keeps a clean history for reporting.</p>
+          </article>
+          <article class="hero-card">
+            <span class="hero-card-label">Insights</span>
+            <strong>Understand business performance</strong>
+            <p>Daily and monthly reporting helps you spot revenue patterns and product demand.</p>
+          </article>
+        </div>
+      </section>
+
+      <section class="panel auth-panel">
+        <div class="panel-header">
+          <div>
+            <p class="eyebrow">Secure Access</p>
+            <h2>Sign in or create your workspace</h2>
+          </div>
+        </div>
+
+        <div class="auth-switch">
+          <button type="button" class="auth-switch-btn active" data-tab="login">Login</button>
+          <button type="button" class="auth-switch-btn" data-tab="register">Register</button>
+        </div>
+
+        <form id="loginForm" class="auth-form">
+          <label class="field">
+            <span>Email Address</span>
+            <input type="email" id="loginEmail" placeholder="owner@store.com" required />
+          </label>
+
+          <label class="field">
+            <span>Password</span>
+            <input type="password" id="loginPassword" placeholder="Enter your password" required />
+          </label>
+
+          <button type="submit" class="btn btn-primary btn-block">Login</button>
+        </form>
+
+        <form id="registerForm" class="auth-form hidden">
+          <label class="field">
+            <span>Full Name</span>
+            <input type="text" id="registerName" placeholder="Business owner name" required />
+          </label>
+
+          <label class="field">
+            <span>Email Address</span>
+            <input type="email" id="registerEmail" placeholder="owner@store.com" required />
+          </label>
+
+          <label class="field">
+            <span>Password</span>
+            <input
+              type="password"
+              id="registerPassword"
+              placeholder="At least 6 characters"
+              minlength="6"
+              required
+            />
+          </label>
+
+          <button type="submit" class="btn btn-primary btn-block">Create Account</button>
+        </form>
+
+        <p class="auth-footnote">
+          Your session is protected with JWT authentication and password hashing.
+        </p>
+      </section>
+    </main>
+
+    <div id="toastContainer" class="toast-container"></div>
+
+    <div id="loadingOverlay" class="loading-overlay hidden">
+      <div class="loading-card">
+        <span class="loader"></span>
+        <p id="loadingText">Working...</p>
+      </div>
+    </div>
+
+    <script src="./js/api.js"></script>
+    <script src="./js/auth.js"></script>
+  </body>
+</html>

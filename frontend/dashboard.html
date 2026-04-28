@@ -1,0 +1,395 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Dashboard | Smart Inventory & Sales</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;700;800&family=Space+Grotesk:wght@500;700&display=swap"
+      rel="stylesheet"
+    />
+    <link rel="stylesheet" href="./css/styles.css" />
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  </head>
+  <body class="dashboard-page">
+    <div class="background-orb background-orb-one"></div>
+    <div class="background-orb background-orb-two"></div>
+
+    <header class="topbar">
+      <div>
+        <p class="eyebrow">Operations Dashboard</p>
+        <h1>Smart Inventory & Sales</h1>
+      </div>
+
+      <div class="topbar-actions">
+        <div class="user-pill">
+          <span class="user-avatar" id="userInitials">SI</span>
+          <div>
+            <strong id="currentUserName">Store Owner</strong>
+            <p id="currentUserEmail">owner@store.com</p>
+          </div>
+        </div>
+        <button id="logoutBtn" class="btn btn-secondary">Logout</button>
+      </div>
+    </header>
+
+    <main class="dashboard-layout">
+      <section class="panel overview-panel">
+        <div class="panel-header">
+          <div>
+            <p class="eyebrow">Overview</p>
+            <h2>Business snapshot</h2>
+          </div>
+          <button id="refreshDashboardBtn" class="btn btn-secondary">Refresh Data</button>
+        </div>
+
+        <div class="metrics-grid">
+          <article class="metric-card">
+            <span class="metric-label">Total Products</span>
+            <strong id="metricProducts">0</strong>
+            <p>Unique products in your catalog.</p>
+          </article>
+          <article class="metric-card">
+            <span class="metric-label">Total Sales</span>
+            <strong id="metricSales">0</strong>
+            <p>Recorded sale transactions.</p>
+          </article>
+          <article class="metric-card">
+            <span class="metric-label">Revenue</span>
+            <strong id="metricRevenue">₹0</strong>
+            <p>Sales value generated so far.</p>
+          </article>
+          <article class="metric-card">
+            <span class="metric-label">Low Stock Alerts</span>
+            <strong id="metricLowStock">0</strong>
+            <p>Products at or below threshold.</p>
+          </article>
+        </div>
+
+        <div class="analytics-grid">
+          <article class="sub-panel chart-panel">
+            <div class="sub-panel-header">
+              <div>
+                <p class="eyebrow">Sales Trend</p>
+                <h3>Last 6 months</h3>
+              </div>
+            </div>
+            <canvas id="salesTrendChart"></canvas>
+          </article>
+
+          <article class="sub-panel chart-panel">
+            <div class="sub-panel-header">
+              <div>
+                <p class="eyebrow">Stock Mix</p>
+                <h3>Inventory by category</h3>
+              </div>
+            </div>
+            <canvas id="stockCategoryChart"></canvas>
+          </article>
+        </div>
+
+        <div class="insight-grid">
+          <article class="sub-panel">
+            <div class="sub-panel-header">
+              <div>
+                <p class="eyebrow">Alerts</p>
+                <h3>Low stock watchlist</h3>
+              </div>
+            </div>
+            <div id="lowStockList" class="list-stack"></div>
+          </article>
+
+          <article class="sub-panel">
+            <div class="sub-panel-header">
+              <div>
+                <p class="eyebrow">Best Movers</p>
+                <h3>Top-selling products</h3>
+              </div>
+            </div>
+            <div id="topSellingList" class="list-stack"></div>
+          </article>
+        </div>
+      </section>
+
+      <section class="workspace-grid">
+        <article class="panel">
+          <div class="panel-header">
+            <div>
+              <p class="eyebrow">Product Management</p>
+              <h2 id="productFormHeading">Add a new product</h2>
+            </div>
+          </div>
+
+          <form id="productForm" class="form-grid">
+            <label class="field">
+              <span>Product Name</span>
+              <input type="text" id="productName" placeholder="e.g. Wireless Mouse" required />
+            </label>
+
+            <label class="field">
+              <span>Category</span>
+              <input type="text" id="productCategory" placeholder="e.g. Accessories" required />
+            </label>
+
+            <label class="field">
+              <span>Price</span>
+              <input type="number" id="productPrice" min="0" step="0.01" placeholder="499" required />
+            </label>
+
+            <label class="field">
+              <span>Quantity</span>
+              <input type="number" id="productQuantity" min="0" step="1" placeholder="25" required />
+            </label>
+
+            <div class="form-actions">
+              <button id="productSubmitBtn" type="submit" class="btn btn-primary">Save Product</button>
+              <button id="cancelProductEditBtn" type="button" class="btn btn-secondary hidden">
+                Cancel Edit
+              </button>
+            </div>
+          </form>
+        </article>
+
+        <article class="panel">
+          <div class="panel-header">
+            <div>
+              <p class="eyebrow">Sales Module</p>
+              <h2>Record a sale</h2>
+            </div>
+          </div>
+
+          <form id="saleForm" class="form-grid">
+            <label class="field">
+              <span>Select Product</span>
+              <select id="saleProduct" required></select>
+            </label>
+
+            <label class="field">
+              <span>Quantity Sold</span>
+              <input type="number" id="saleQuantity" min="1" step="1" placeholder="1" required />
+            </label>
+
+            <label class="field">
+              <span>Customer Name</span>
+              <input type="text" id="customerName" placeholder="Optional" />
+            </label>
+
+            <div class="sub-panel sale-preview">
+              <span class="sale-preview-label">Quick Preview</span>
+              <strong id="salePreviewTotal">₹0</strong>
+              <p id="salePreviewHint">Choose a product to preview sale value and stock status.</p>
+            </div>
+
+            <div class="form-actions">
+              <button id="saleSubmitBtn" type="submit" class="btn btn-primary">Create Sale</button>
+            </div>
+          </form>
+        </article>
+      </section>
+
+      <section class="panel">
+        <div class="panel-header">
+          <div>
+            <p class="eyebrow">Inventory Table</p>
+            <h2>Browse, search, and filter products</h2>
+          </div>
+        </div>
+
+        <div class="filter-bar">
+          <label class="field field-inline">
+            <span>Search</span>
+            <input type="search" id="productSearch" placeholder="Search by name or category" />
+          </label>
+
+          <label class="field field-inline">
+            <span>Category</span>
+            <select id="productCategoryFilter">
+              <option value="">All categories</option>
+            </select>
+          </label>
+
+          <label class="checkbox-field">
+            <input type="checkbox" id="lowStockOnly" />
+            <span>Low stock only</span>
+          </label>
+
+          <button id="clearFiltersBtn" class="btn btn-secondary" type="button">Clear Filters</button>
+        </div>
+
+        <div class="table-shell">
+          <table class="data-table">
+            <thead>
+              <tr>
+                <th>Product</th>
+                <th>Category</th>
+                <th>Price</th>
+                <th>Quantity</th>
+                <th>Updated</th>
+                <th>Actions</th>
+              </tr>
+            </thead>
+            <tbody id="productsTableBody"></tbody>
+          </table>
+        </div>
+      </section>
+
+      <section class="workspace-grid">
+        <article class="panel">
+          <div class="panel-header">
+            <div>
+              <p class="eyebrow">Sales History</p>
+              <h2>Recent transactions</h2>
+            </div>
+          </div>
+
+          <div class="table-shell">
+            <table class="data-table">
+              <thead>
+                <tr>
+                  <th>Product</th>
+                  <th>Customer</th>
+                  <th>Qty</th>
+                  <th>Total</th>
+                  <th>Date</th>
+                </tr>
+              </thead>
+              <tbody id="salesTableBody"></tbody>
+            </table>
+          </div>
+        </article>
+
+        <article class="panel">
+          <div class="panel-header">
+            <div>
+              <p class="eyebrow">Quick Totals</p>
+              <h2>Inventory position</h2>
+            </div>
+          </div>
+
+          <div class="metric-stack">
+            <article class="mini-metric">
+              <span>Inventory Units</span>
+              <strong id="inventoryUnitsMetric">0</strong>
+            </article>
+            <article class="mini-metric">
+              <span>Inventory Value</span>
+              <strong id="inventoryValueMetric">₹0</strong>
+            </article>
+            <article class="mini-metric">
+              <span>Units Sold</span>
+              <strong id="unitsSoldMetric">0</strong>
+            </article>
+          </div>
+        </article>
+      </section>
+
+      <section class="panel">
+        <div class="panel-header">
+          <div>
+            <p class="eyebrow">Reports</p>
+            <h2>Daily and monthly summaries</h2>
+          </div>
+        </div>
+
+        <div class="reports-grid">
+          <article class="sub-panel">
+            <div class="sub-panel-header report-header">
+              <div>
+                <p class="eyebrow">Daily Report</p>
+                <h3>Selected date performance</h3>
+              </div>
+              <div class="report-actions">
+                <input type="date" id="dailyReportDate" />
+                <button id="dailyReportBtn" class="btn btn-secondary" type="button">Load</button>
+              </div>
+            </div>
+
+            <div class="report-summary">
+              <div class="mini-metric">
+                <span>Revenue</span>
+                <strong id="dailyRevenueMetric">₹0</strong>
+              </div>
+              <div class="mini-metric">
+                <span>Transactions</span>
+                <strong id="dailyTransactionsMetric">0</strong>
+              </div>
+              <div class="mini-metric">
+                <span>Units Sold</span>
+                <strong id="dailyUnitsMetric">0</strong>
+              </div>
+            </div>
+
+            <div class="table-shell">
+              <table class="data-table compact-table">
+                <thead>
+                  <tr>
+                    <th>Product</th>
+                    <th>Units</th>
+                    <th>Revenue</th>
+                  </tr>
+                </thead>
+                <tbody id="dailyReportBody"></tbody>
+              </table>
+            </div>
+          </article>
+
+          <article class="sub-panel">
+            <div class="sub-panel-header report-header">
+              <div>
+                <p class="eyebrow">Monthly Summary</p>
+                <h3>Month-to-date performance</h3>
+              </div>
+              <div class="report-actions">
+                <input type="month" id="monthlyReportMonth" />
+                <button id="monthlyReportBtn" class="btn btn-secondary" type="button">Load</button>
+              </div>
+            </div>
+
+            <div class="report-summary">
+              <div class="mini-metric">
+                <span>Revenue</span>
+                <strong id="monthlyRevenueMetric">₹0</strong>
+              </div>
+              <div class="mini-metric">
+                <span>Transactions</span>
+                <strong id="monthlyTransactionsMetric">0</strong>
+              </div>
+              <div class="mini-metric">
+                <span>Units Sold</span>
+                <strong id="monthlyUnitsMetric">0</strong>
+              </div>
+            </div>
+
+            <div class="table-shell">
+              <table class="data-table compact-table">
+                <thead>
+                  <tr>
+                    <th>Date</th>
+                    <th>Revenue</th>
+                    <th>Transactions</th>
+                    <th>Units</th>
+                  </tr>
+                </thead>
+                <tbody id="monthlyReportBody"></tbody>
+              </table>
+            </div>
+          </article>
+        </div>
+      </section>
+    </main>
+
+    <div id="toastContainer" class="toast-container"></div>
+
+    <div id="loadingOverlay" class="loading-overlay hidden">
+      <div class="loading-card">
+        <span class="loader"></span>
+        <p id="loadingText">Loading dashboard...</p>
+      </div>
+    </div>
+
+    <script src="./js/api.js"></script>
+    <script src="./js/dashboard.js"></script>
+  </body>
+</html>
