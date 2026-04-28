@@ -18,19 +18,10 @@ connectDB();
 
 const app = express();
 const PORT = process.env.PORT || 5000;
-const allowedOrigins = (process.env.CLIENT_URLS || "")
-  .split(",")
-  .map((origin) => origin.trim())
-  .filter(Boolean);
 const corsOptions = {
-  origin(origin, callback) {
-    if (!origin || allowedOrigins.length === 0 || allowedOrigins.includes(origin)) {
-      return callback(null, true);
-    }
-
-    return callback(new Error("Not allowed by CORS"));
-  },
-  credentials: true,
+  origin: true,
+  methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
+  allowedHeaders: ["Content-Type", "Authorization"],
 };
 
 // Middleware
