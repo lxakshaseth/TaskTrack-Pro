@@ -3,7 +3,7 @@
   const USER_KEY = "smart_inventory_user";
 
   // ✅ Use Vite env (NO meta tag anymore)
-  const API_BASE_URL = import.meta.env.VITE_API_URL || "http://localhost:5000";
+  const API_BASE_URL = "https://tasktrack-pro-nl6i.onrender.com";
 
   const parseJson = (value) => {
     try {
