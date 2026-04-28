@@ -1,44 +1,31 @@
 (function bootstrapAppApi() {
   const TOKEN_KEY = "smart_inventory_token";
   const USER_KEY = "smart_inventory_user";
-  const metaApiBase = document.querySelector('meta[name="api-base-url"]')?.content?.trim();
-  const configuredApiBase = window.APP_API_BASE_URL || metaApiBase || "";
-  const isLocalHost = ["localhost", "127.0.0.1"].includes(window.location.hostname);
-  const API_BASE_URL = configuredApiBase || (isLocalHost ? "http://localhost:5000" : "");
-  const PLACEHOLDER_API_HOST = "your-render-backend.onrender.com";
+
+  // ✅ Use Vite env (NO meta tag anymore)
+  const API_BASE_URL = import.meta.env.VITE_API_URL || "http://localhost:5000";
 
   const parseJson = (value) => {
     try {
       return JSON.parse(value);
-    } catch (error) {
+    } catch {
       return null;
     }
   };
 
   const buildApiUrl = (endpoint) => {
-    if (/^https?:\/\//i.test(endpoint)) {
-      return endpoint;
-    }
+    if (/^https?:\/\//i.test(endpoint)) return endpoint;
 
-    if (!API_BASE_URL) {
-      return endpoint;
-    }
+    const base = API_BASE_URL.replace(/\/+$/, "");
+    const path = endpoint.startsWith("/") ? endpoint : `/${endpoint}`;
 
-    const normalizedBase = API_BASE_URL.replace(/\/+$/, "");
-    const normalizedEndpoint = endpoint.startsWith("/") ? endpoint : `/${endpoint}`;
-
-    return `${normalizedBase}${normalizedEndpoint}`;
+    return `${base}${path}`;
   };
-
-  const hasPlaceholderApiBase = () => API_BASE_URL.includes(PLACEHOLDER_API_HOST);
 
   const ui = {
     showToast(message, type = "success") {
       const container = document.getElementById("toastContainer");
-
-      if (!container) {
-        return;
-      }
+      if (!container) return;
 
       const toast = document.createElement("div");
       toast.className = `toast ${type}`;
@@ -50,51 +37,41 @@
         toast.style.transform = "translateY(-8px)";
       }, 2600);
 
-      setTimeout(() => {
-        toast.remove();
-      }, 3000);
+      setTimeout(() => toast.remove(), 3000);
     },
 
     setLoading(isLoading, message = "Working...") {
       const overlay = document.getElementById("loadingOverlay");
       const text = document.getElementById("loadingText");
 
-      if (!overlay) {
-        return;
-      }
+      if (!overlay) return;
 
       overlay.classList.toggle("hidden", !isLoading);
-
-      if (text) {
-        text.textContent = message;
-      }
+      if (text) text.textContent = message;
     },
 
-    setButtonLoading(button, isLoading, loadingLabel = "Please wait...") {
-      if (!button) {
-        return;
-      }
+    setButtonLoading(button, isLoading, label = "Please wait...") {
+      if (!button) return;
 
       if (!button.dataset.defaultLabel) {
         button.dataset.defaultLabel = button.textContent;
       }
 
       button.disabled = isLoading;
-      button.textContent = isLoading ? loadingLabel : button.dataset.defaultLabel;
+      button.textContent = isLoading
+        ? label
+        : button.dataset.defaultLabel;
     },
 
     formatCurrency(value) {
       return new Intl.NumberFormat("en-IN", {
         style: "currency",
         currency: "INR",
-        maximumFractionDigits: 2,
       }).format(Number(value || 0));
     },
 
     formatDate(value) {
-      if (!value) {
-        return "N/A";
-      }
+      if (!value) return "N/A";
 
       return new Date(value).toLocaleString("en-IN", {
         dateStyle: "medium",
@@ -103,9 +80,7 @@
     },
 
     formatShortDate(value) {
-      if (!value) {
-        return "N/A";
-      }
+      if (!value) return "N/A";
 
       return new Date(value).toLocaleDateString("en-IN", {
         day: "2-digit",
@@ -164,11 +139,8 @@
 
     async request(endpoint, options = {}) {
       const { method = "GET", body, auth = false, headers = {} } = options;
-      const requestHeaders = { ...headers };
 
-      if (hasPlaceholderApiBase()) {
-        throw new Error("Set the real Render backend URL in the api-base-url meta tag.");
-      }
+      const requestHeaders = { ...headers };
 
       if (body !== undefined) {
         requestHeaders["Content-Type"] = "application/json";
@@ -187,14 +159,16 @@
           body: body !== undefined ? JSON.stringify(body) : undefined,
         });
       } catch (error) {
-        throw new Error("Unable to reach the API. Check the deployed backend URL and CORS settings.");
+        throw new Error(
+          "Unable to reach the API. Check backend URL or server status."
+        );
       }
 
       let data = null;
 
       try {
         data = await response.json();
-      } catch (error) {
+      } catch {
         data = null;
       }
 
