@@ -5,6 +5,7 @@
   const configuredApiBase = window.APP_API_BASE_URL || metaApiBase || "";
   const isLocalHost = ["localhost", "127.0.0.1"].includes(window.location.hostname);
   const API_BASE_URL = configuredApiBase || (isLocalHost ? "http://localhost:5000" : "");
+  const PLACEHOLDER_API_HOST = "your-render-backend.onrender.com";
 
   const parseJson = (value) => {
     try {
@@ -28,6 +29,8 @@
 
     return `${normalizedBase}${normalizedEndpoint}`;
   };
+
+  const hasPlaceholderApiBase = () => API_BASE_URL.includes(PLACEHOLDER_API_HOST);
 
   const ui = {
     showToast(message, type = "success") {
@@ -163,6 +166,10 @@
       const { method = "GET", body, auth = false, headers = {} } = options;
       const requestHeaders = { ...headers };
 
+      if (hasPlaceholderApiBase()) {
+        throw new Error("Set the real Render backend URL in the api-base-url meta tag.");
+      }
+
       if (body !== undefined) {
         requestHeaders["Content-Type"] = "application/json";
       }
@@ -171,11 +178,17 @@
         requestHeaders.Authorization = `Bearer ${this.getToken()}`;
       }
 
-      const response = await fetch(buildApiUrl(endpoint), {
-        method,
-        headers: requestHeaders,
-        body: body !== undefined ? JSON.stringify(body) : undefined,
-      });
+      let response;
+
+      try {
+        response = await fetch(buildApiUrl(endpoint), {
+          method,
+          headers: requestHeaders,
+          body: body !== undefined ? JSON.stringify(body) : undefined,
+        });
+      } catch (error) {
+        throw new Error("Unable to reach the API. Check the deployed backend URL and CORS settings.");
+      }
 
       let data = null;
 
