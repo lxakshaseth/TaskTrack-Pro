@@ -1,6 +1,10 @@
 (function bootstrapAppApi() {
   const TOKEN_KEY = "smart_inventory_token";
   const USER_KEY = "smart_inventory_user";
+  const metaApiBase = document.querySelector('meta[name="api-base-url"]')?.content?.trim();
+  const configuredApiBase = window.APP_API_BASE_URL || metaApiBase || "";
+  const isLocalHost = ["localhost", "127.0.0.1"].includes(window.location.hostname);
+  const API_BASE_URL = configuredApiBase || (isLocalHost ? "http://localhost:5000" : "");
 
   const parseJson = (value) => {
     try {
@@ -8,6 +12,21 @@
     } catch (error) {
       return null;
     }
+  };
+
+  const buildApiUrl = (endpoint) => {
+    if (/^https?:\/\//i.test(endpoint)) {
+      return endpoint;
+    }
+
+    if (!API_BASE_URL) {
+      return endpoint;
+    }
+
+    const normalizedBase = API_BASE_URL.replace(/\/+$/, "");
+    const normalizedEndpoint = endpoint.startsWith("/") ? endpoint : `/${endpoint}`;
+
+    return `${normalizedBase}${normalizedEndpoint}`;
   };
 
   const ui = {
@@ -152,7 +171,7 @@
         requestHeaders.Authorization = `Bearer ${this.getToken()}`;
       }
 
-      const response = await fetch(endpoint, {
+      const response = await fetch(buildApiUrl(endpoint), {
         method,
         headers: requestHeaders,
         body: body !== undefined ? JSON.stringify(body) : undefined,
